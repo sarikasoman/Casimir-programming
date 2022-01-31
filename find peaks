@@ -1,10 +1,21 @@
-import numpy as np
-import matplotlib.pyplot as plt 
+iimport numpy as np
+import matplotlib.pyplot as plt
+from scipy.stats import norm
 from scipy.signal import find_peaks
 
-x = np.sin(2*np.pi*(2**np.linspace(2,10,180))*np.arange(180)/48000) + np.random.normal(0, 1, 180) * 0.01
-peaks2, _ = find_peaks(x, prominence=1)      # BEST!
-peaks4, _ = find_peaks(x, threshold=0.4)     # Required vertical distance to its direct neighbouring samples, pretty useless
+mus = [2,6]
+sigmas = [0.4,0.7]
+x = np.linspace(0,10,1000)
 
-plt.plot(peaks2, x[peaks2], "ob"); plt.plot(x); plt.legend(['prominence'])
+data = np.zeros(shape=x.shape)
+for m,s in zip(mus,sigmas):
+    data += norm.pdf(x, m, s)
+    
+noise = np.random.random(data.shape) * 0
+datax = data + noise
+
+peaks,_ = find_peaks(datax, height=0, prominence=0.2, width=1)
+plt.scatter(x[peaks],datax[peaks], c="red")
+plt.plot(x,datax);
+
 plt.show()
